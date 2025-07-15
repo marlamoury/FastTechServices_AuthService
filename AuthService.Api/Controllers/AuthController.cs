@@ -1,6 +1,7 @@
 ﻿using AuthService.Application.DTOs;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static BCrypt.Net.BCrypt;
 
@@ -82,5 +83,13 @@ public class AuthController : ControllerBase
                 user.Role
             }
         });
+    }
+
+
+    [HttpGet("validate")]
+    [Authorize]
+    public IActionResult Validate()
+    {
+        return Ok();
     }
 }
