@@ -31,10 +31,10 @@ jobs:
           echo "Using AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
       - name: Restore dependencies
-        run: dotnet restore CriarContatos.Api.sln
+        run: dotnet restore AuthService.Api.sln
 
       - name: Build
-        run: dotnet build CriarContatos.Api.sln --configuration Release
+        run: dotnet build AuthService.Api.sln --configuration Release
 
       - name: Start RabbitMQ
         run: |
@@ -61,8 +61,8 @@ jobs:
         env:
           ASPNETCORE_URLS: http://localhost:5102
         run: |
-          cd CriarContatos.Api/bin/Release/net8.0/
-          dotnet CriarContatos.Api.dll & disown
+          cd AuthService.Api/bin/Release/net8.0/
+          dotnet AuthService.Api.dll & disown
           sleep 5
 
       - name: Wait for API to Start
@@ -88,7 +88,7 @@ jobs:
         run: dotnet test CriarContatos.Test/CriarContatos.Test.csproj --configuration Release --logger "console;verbosity=detailed"
 
       - name: Publish
-        run: dotnet publish CriarContatos.Api/CriarContatos.Api.csproj --configuration Release --output CriarContatos.Api/publish
+        run: dotnet publish AuthService.Api/AuthService.Api.csproj --configuration Release --output AuthService.Api/publish
 
       # --- Adicionando as etapas de Docker, ACR e AKS ---
       - name: Azure Login
@@ -120,7 +120,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/producer-criar-contatos:latest -f CriarContatos.Api/Dockerfile .
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/producer-criar-contatos:latest -f AuthService.Api/Dockerfile .
 
       - name: Push Docker image to ACR
         run: |
@@ -135,20 +135,20 @@ jobs:
       - name: Update Kubernetes Resources
         run: |
           # Aplica ConfigMap (cria ou atualiza se necessário)
-          kubectl apply -f CriarContatos.Api/k8s/producer-criar-contatos-configmap.yml
+          kubectl apply -f AuthService.Api/k8s/producer-criar-contatos-configmap.yml
 
           # Aplica Deployment (cria ou atualiza se necessário)
-          kubectl apply -f CriarContatos.Api/k8s/producer-criar-contatos-deployment.yml
+          kubectl apply -f AuthService.Api/k8s/producer-criar-contatos-deployment.yml
 
           # Aplica PVC e PV (apenas cria ou atualiza, sem deletar)
-          kubectl apply -f CriarContatos.Api/k8s/producer-criar-contatos-persistent-volume.yml
-          kubectl apply -f CriarContatos.Api/k8s/producer-criar-contatos-persistent-volume-claim.yml
+          kubectl apply -f AuthService.Api/k8s/producer-criar-contatos-persistent-volume.yml
+          kubectl apply -f AuthService.Api/k8s/producer-criar-contatos-persistent-volume-claim.yml
 
           # Aplica Service (cria ou atualiza se necessário)
-          kubectl apply -f CriarContatos.Api/k8s/producer-criar-contatos-service.yml
+          kubectl apply -f AuthService.Api/k8s/producer-criar-contatos-service.yml
 
           # Aplica o Ingress (cria ou atualiza o roteamento externo)
-          kubectl apply -f CriarContatos.Api/k8s/producer-criar-contatos-ingress.yml
+          kubectl apply -f AuthService.Api/k8s/producer-criar-contatos-ingress.yml
 
           # Espera o rollout do Deployment para garantir que a atualização foi bem-sucedida
           kubectl rollout status deployment/producer-criar-contatos-deployment
@@ -157,8 +157,8 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            CriarContatos.Api/k8s/producer-criar-contatos-deployment.yml
-            CriarContatos.Api/k8s/producer-criar-contatos-service.yml
+            AuthService.Api/k8s/producer-criar-contatos-deployment.yml
+            AuthService.Api/k8s/producer-criar-contatos-service.yml
           images: |
             ${{ secrets.ACR_LOGIN_SERVER }}/producer-criar-contatos:latest
           # imagepullsecrets: |
