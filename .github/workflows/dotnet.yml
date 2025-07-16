@@ -34,7 +34,7 @@ jobs:
         run: dotnet restore AuthService.sln
 
       - name: Build
-        run: dotnet build AuthService.Api.sln --configuration Release
+        run: dotnet build AuthService.sln --configuration Release
 
       - name: Start RabbitMQ
         run: |
