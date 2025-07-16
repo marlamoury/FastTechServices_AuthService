@@ -65,17 +65,11 @@ jobs:
           dotnet AuthService.Api.dll & disown
           sleep 5
 
-      - name: Debug - List files and processes
-        run: |
-          ls -l AuthService.Api/bin/Release/net9.0/
-          ps aux | grep dotnet
-
       - name: Wait for API to Start
         run: |
           for i in {1..10}; do
             echo "Tentando acessar endpoint de health..."
-            curl -v http://localhost:5010/auth/health -o health_response.txt || true
-            cat health_response.txt
+            curl -v http://localhost:5010/auth/health || true
             if curl -f http://localhost:5010/auth/health > /dev/null 2>&1; then
               echo "API started successfully"
               exit 0
