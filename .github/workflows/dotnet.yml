@@ -36,20 +36,20 @@ jobs:
       - name: Build
         run: dotnet build AuthService.sln --configuration Release
 
-      - name: Start RabbitMQ
-        run: |
-          docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-          sleep 10
-          for i in {1..10}; do
-            if curl -u guest:guest -f http://localhost:15672/api/healthchecks/node > /dev/null 2>&1; then
-              echo "RabbitMQ is ready"
-              exit 0
-            fi
-            echo "Waiting for RabbitMQ to start... Attempt $i of 10"
-            sleep 5
-          done
-          echo "RabbitMQ failed to start"
-          exit 1
+      # - name: Start RabbitMQ
+      #   run: |
+      #     docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+      #     sleep 10
+      #     for i in {1..10}; do
+      #       if curl -u guest:guest -f http://localhost:15672/api/healthchecks/node > /dev/null 2>&1; then
+      #         echo "RabbitMQ is ready"
+      #         exit 0
+      #       fi
+      #       echo "Waiting for RabbitMQ to start... Attempt $i of 10"
+      #       sleep 5
+      #     done
+      #     echo "RabbitMQ failed to start"
+      #     exit 1
 
       - name: Set Environment Variables
         run: |
@@ -57,13 +57,26 @@ jobs:
           echo "RABBITMQSETTINGS__USERNAME=guest" >> $GITHUB_ENV
           echo "RABBITMQSETTINGS__PASSWORD=guest" >> $GITHUB_ENV
 
+      # - name: Start API in Background
+      #   env:
+      #     ASPNETCORE_URLS: http://localhost:5010
+      #   run: |
+      #     cd AuthService.Api/bin/Release/net9.0/
+      #     dotnet AuthService.Api.dll & disown
+      #     sleep 5
+
       - name: Start API in Background
         env:
           ASPNETCORE_URLS: http://localhost:5010
         run: |
           cd AuthService.Api/bin/Release/net9.0/
-          dotnet AuthService.Api.dll & disown
+          dotnet AuthService.Api.dll > api.log 2>&1 & disown
           sleep 5
+
+      - name: Show API logs if failed
+        if: failure()
+        run: |
+          cat AuthService.Api/bin/Release/net9.0/api.log || echo "No log file found"
 
       - name: Debug - List files and processes
         run: |
