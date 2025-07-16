@@ -74,7 +74,8 @@ jobs:
         run: |
           for i in {1..10}; do
             echo "Tentando acessar endpoint de health..."
-            curl -v http://localhost:5010/auth/health || true
+            curl -v http://localhost:5010/auth/health -o health_response.txt || true
+            cat health_response.txt
             if curl -f http://localhost:5010/auth/health > /dev/null 2>&1; then
               echo "API started successfully"
               exit 0
