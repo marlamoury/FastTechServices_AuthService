@@ -8,6 +8,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Adiciona o serviço de health check
+builder.Services.AddHealthChecks();
+
 //JWT Configuration
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt")
@@ -92,6 +95,9 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+// Mapeia o endpoint de health check
+app.MapHealthChecks("/auth/health");
 
 //Middleware pipeline
 if (app.Environment.IsDevelopment())
