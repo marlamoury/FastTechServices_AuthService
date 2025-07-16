@@ -31,7 +31,7 @@ jobs:
           echo "Using AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
       - name: Restore dependencies
-        run: dotnet restore AuthService.Api.sln
+        run: dotnet restore AuthService.sln
 
       - name: Build
         run: dotnet build AuthService.Api.sln --configuration Release
