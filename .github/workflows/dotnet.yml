@@ -57,20 +57,12 @@ jobs:
           echo "RABBITMQSETTINGS__USERNAME=guest" >> $GITHUB_ENV
           echo "RABBITMQSETTINGS__PASSWORD=guest" >> $GITHUB_ENV
 
-      # - name: Start API in Background
-      #   env:
-      #     ASPNETCORE_URLS: http://localhost:5010
-      #   run: |
-      #     cd AuthService.Api/bin/Release/net9.0/
-      #     dotnet AuthService.Api.dll & disown
-      #     sleep 5
-
       - name: Start API in Background
         env:
           ASPNETCORE_URLS: http://localhost:5010
         run: |
           cd AuthService.Api/bin/Release/net9.0/
-          dotnet AuthService.Api.dll > api.log 2>&1 & disown
+          dotnet AuthService.Api.dll & disown
           sleep 5
 
       - name: Show API logs if failed
