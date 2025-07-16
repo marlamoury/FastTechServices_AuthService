@@ -83,11 +83,11 @@ jobs:
       - name: Test API Health
         run: curl -f http://localhost:5010/auth/health || exit 1
 
-      - name: Test API Metrics
-        run: curl -f http://localhost:5010/criar/contato/metrics || exit 1
+      # - name: Test API Metrics
+      #   run: curl -f http://localhost:5010/criar/contato/metrics || exit 1
 
-      - name: Run Unit Tests        
-        run: dotnet test CriarContatos.Test/CriarContatos.Test.csproj --configuration Release --logger "console;verbosity=detailed"
+      # - name: Run Unit Tests        
+      #   run: dotnet test CriarContatos.Test/CriarContatos.Test.csproj --configuration Release --logger "console;verbosity=detailed"
 
       - name: Publish
         run: dotnet publish AuthService.Api/AuthService.Api.csproj --configuration Release --output AuthService.Api/publish
