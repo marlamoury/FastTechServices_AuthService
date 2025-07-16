@@ -57,26 +57,13 @@ jobs:
           echo "RABBITMQSETTINGS__USERNAME=guest" >> $GITHUB_ENV
           echo "RABBITMQSETTINGS__PASSWORD=guest" >> $GITHUB_ENV
 
-      # - name: Start API in Background
-      #   env:
-      #     ASPNETCORE_URLS: http://localhost:5010
-      #   run: |
-      #     cd AuthService.Api/bin/Release/net9.0/
-      #     dotnet AuthService.Api.dll & disown
-      #     sleep 5
-
       - name: Start API in Background
         env:
           ASPNETCORE_URLS: http://localhost:5010
         run: |
           cd AuthService.Api/bin/Release/net9.0/
-          nohup dotnet AuthService.Api.dll > api.log 2>&1 &
+          dotnet AuthService.Api.dll & disown
           sleep 5
-
-      - name: Show API logs if failed
-        if: failure()
-        run: |
-          cat AuthService.Api/bin/Release/net9.0/api.log || echo "No log file found"
 
       - name: Debug - List files and processes
         run: |
@@ -85,7 +72,7 @@ jobs:
 
       - name: Wait for API to Start
         run: |
-          for i in {1..30}; do
+          for i in {1..10}; do
             if curl -f http://localhost:5010/auth/health > /dev/null 2>&1; then
               echo "API started successfully"
               exit 0
